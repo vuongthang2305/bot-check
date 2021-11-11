@@ -57,6 +57,7 @@ def cralw(name):
             time.sleep(1)
             driver.quit()
     except Exception as e:
+        print(e)
         data = {
             'code': 500,
             'message': 'Lỗi hệ thống',
