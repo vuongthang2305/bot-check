@@ -1,77 +1,64 @@
-import requests
-import json
+from os import times
+from PIL.ImageFilter import Color3DLUT
+import bs4
+from selenium import webdriver
+from selenium.webdriver.chrome.options import Options
+import json, time
+from bs4 import BeautifulSoup
+def cralw(name):
+    data = {}
+    try:
+        chrome_options = Options()
+        chrome_options.add_argument("--incognito")
+        chrome_options.add_argument("--window-size=720x480")
 
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=r"/home/thang/Desktop/ApiOdoo/chromedriver")
+        driver.get(f"https://lmssplus.com/profile/{name}")
+        rank = driver.find_element_by_class_name("rankBox_rankName__VcGiL")
 
-def get_Token():
-    url = 'https://open.sendo.vn/login'
+        if len(rank.text) == 1:
+            data = {
+                'code': 404,
+                'message': f'Không tìm thấy tài khoản `{name}` vui lòng kiểm tra lại',
+            }
+            driver.quit()
+        else:
+            summoner_name = driver.find_element_by_class_name("nameAndImg_name__b_gpp")
+            level = driver.find_element_by_class_name("nameAndImg_level__327IV")
+            champ = driver.find_elements_by_class_name("masteries_tqOneName__1JV7r")
+            score_champ = driver.find_elements_by_class_name("masteries_tqOneSortDetail__2VgWs")
+            history_status = driver.find_elements_by_class_name("historyBox_metaInfosStatus__Wi3Pq")
+            time.sleep(1)
+            
 
-    headerss = {
-        'Content-Type': 'application/json'
-    }
+            print(len(history_status))
+            status = [i.text for i in history_status]
 
-    data = {
-        "shop_key":"6e8591b5b33e42209bcd6ae8b6ca1595",
-        "secret_key":"fce83a72d24844c1be4a71ae1e459ae4"
-    }
-    data = json.dumps(data)
-    response = requests.request("POST", url, headers=headerss, data=data)
-    return response.json()['result']['token']
-
-TOKEN = get_Token()
-
-def get_category():
-    url = 'https://open.sendo.vn/api/partner/category/0'
-    
-
-    headers ={
-        'Content-Type': 'application/json',
-        'Authorization': 'Bearer ' + TOKEN
-    }
-
-    response = requests.request("GET", url, headers=headers)
-
-    return response
-
-def get_product():
-    url = 'https://open.sendo.vn/api/partner/product/search'
-
-    TOKEN = get_Token()
-
-    headers = {
-        'authorization': 'bearer ' + TOKEN, 
-        'Content-Type': 'application/json',
-        'cache-control': 'no-cache'
-    }
-
-    data = {
-    "page_size": 10,
-    "product_name": "",
-    "date_from": "2020-05-01",
-    "date_to": "2021-10-28",
-    "status":'',
-    "token": ""
-	}
-    data = json.dumps(data)
-    
-    response = requests.request("POST", url, headers=headers, data=data)
-    return response.json()
-
-
-def get_detail_product(id):
-    url = f'https://open.sendo.vn/api/partner/product?id={id}'
-
-    headers = {
-        'Authorization': 'bearer {}'.format(TOKEN) 
-    }
-    
-    response = requests.request("GET", url, headers=headers)
-
-    return response.json()
-
-id = ''
-for i in get_product()['result']['data']:
-    id = i['id']
-data = get_detail_product(id)
-
-with open('data.json', 'w', encoding='utf-8') as f:
-    json.dump(data, f, ensure_ascii=False, indent=4)
+            print(rank.text)
+            data = {
+                'code': 200,
+                "summoner_name": summoner_name.text,
+                "level": level.text,
+                "rank": rank.text,
+                "champ_top": {
+                    "champ_name": str(champ[1].text).capitalize(),
+                    "score": str(score_champ[2].text).split(' ')[0]
+                },
+                "champ_mid": {
+                    "champ_name": str(champ[0].text).capitalize(),
+                    "score":str(score_champ[0].text).split(' ')[0]
+                },
+                "champ_jungle": {
+                    "champ_name": str(champ[2].text).capitalize(),
+                    "score": str(score_champ[4].text).split(' ')[0]
+                },
+                "history": status,
+            }
+            time.sleep(1)
+            driver.quit()
+    except Exception as e:
+        data = {
+            'code': 500,
+            'message': 'Lỗi hệ thống',
+        }
+    return data
