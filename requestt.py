@@ -4,6 +4,7 @@ import bs4
 from selenium import webdriver
 from selenium.webdriver.chrome.options import Options
 import json, time
+import os
 from bs4 import BeautifulSoup
 def cralw(name):
     data = {}
@@ -11,8 +12,8 @@ def cralw(name):
         chrome_options = Options()
         chrome_options.add_argument("--incognito")
         chrome_options.add_argument("--window-size=720x480")
-
-        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=r"/home/thangpro767/Bot-Check/chromedriver")
+        path = os.path.dirname(__file__) + "/chromedriver"
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=path)
         driver.get(f"https://lmssplus.com/profile/{name}")
         rank = driver.find_element_by_class_name("rankBox_rankName__VcGiL")
 
