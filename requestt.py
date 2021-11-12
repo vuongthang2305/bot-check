@@ -12,7 +12,7 @@ def cralw(name):
         chrome_options.add_argument("--incognito")
         chrome_options.add_argument("--window-size=720x480")
 
-        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=r"/home/thang/Desktop/ApiOdoo/chromedriver")
+        driver = webdriver.Chrome(chrome_options=chrome_options, executable_path=r"/home/thangpro767/Bot-Check/chromedriver")
         driver.get(f"https://lmssplus.com/profile/{name}")
         rank = driver.find_element_by_class_name("rankBox_rankName__VcGiL")
 
@@ -57,6 +57,7 @@ def cralw(name):
             time.sleep(1)
             driver.quit()
     except Exception as e:
+        print(e)
         data = {
             'code': 500,
             'message': 'Lỗi hệ thống',
